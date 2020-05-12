@@ -1,0 +1,8 @@
+server:
+  port: 11080
+  servlet:
+    context-path: /HikvisionManage
+
+vidicon:
+  mode: 0 #读取摄像头信息方式
+  url: /comDevManageC/controlGate
