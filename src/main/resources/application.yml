@@ -5,4 +5,4 @@ server:
 
 vidicon:
   mode: 0 #读取摄像头信息方式
-  url: /comDevManageC/controlGate
+  url: /comDevManageC/controlGate #获取设备信息的接口

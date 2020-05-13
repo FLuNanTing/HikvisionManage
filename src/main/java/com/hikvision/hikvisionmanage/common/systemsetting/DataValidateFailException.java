@@ -1,4 +1,4 @@
-package com.dcjt518.oms.common.exception;
+package com.hikvision.hikvisionmanage.common.systemsetting;
 
 import java.io.Serializable;
 import java.util.HashMap;

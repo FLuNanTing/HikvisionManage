@@ -17,7 +17,7 @@ import java.util.Map;
 
 /**
  * @program: HikvisionManage
- * @description: 系统初始化参数设置
+ * @description: 系统初始化基本参数设置
  * @author: LuNanTing
  * @create: 2020-05-11 14:55
  **/
@@ -42,6 +42,7 @@ public class InitParameter {
         return configurationParameter;
     }
 
+    @Bean
     public List<VidiconManage> vidiconManageListBean() {
         List<VidiconManage> list = new ArrayList<>();
         Map<String, Object> vidicon = ReadConfigurationUtil.readYamlMap("application.yml", "vidicon");
@@ -79,5 +80,6 @@ public class InitParameter {
                 });
             }
         }
+        return list;
     }
 }

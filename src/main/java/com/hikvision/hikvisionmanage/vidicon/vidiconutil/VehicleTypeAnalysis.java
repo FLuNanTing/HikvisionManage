@@ -1,4 +1,4 @@
-package com.hikvision.hikvisionmanage.vidicon.radioutil;
+package com.hikvision.hikvisionmanage.vidicon.vidiconutil;
 
 /**
  * @program: HikvisionManage

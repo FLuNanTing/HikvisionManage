@@ -6,30 +6,13 @@ package com.hikvision.hikvisionmanage.devicemanage.bo;
  * @author: LuNanTing
  * @create: 2020-05-12 18:02
  **/
-public class RadioManage {
+public class RadioServiceManage {
 
-    private static final RadioManage RADIO_MANAGE = new RadioManage();
     private String radioIp;
 
     private Integer radioPort;
 
     private String radioProject;
-
-    private RadioManage(){
-
-    }
-
-    private RadioManage(String sectionName){
-
-    }
-
-    public static RadioManage getInstance(){
-        return RadioManageFactory.radioManage;
-    }
-
-    private static class RadioManageFactory {
-        private static RadioManage radioManage = new RadioManage("radio_address_");
-    }
 
     public String getRadioIp() {
         return radioIp;

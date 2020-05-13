@@ -1,10 +1,10 @@
-package com.hikvision.hikvisionmanage.vidicon.radioaction;
+package com.hikvision.hikvisionmanage.vidicon.vidiconaction;
 
 import com.alibaba.fastjson.JSON;
 import com.hikvision.hikvisionmanage.core.sdk.HCNetSDK;
 import com.hikvision.hikvisionmanage.devicemanage.bo.LocalServiceManage;
 import com.hikvision.hikvisionmanage.devicemanage.bo.RadioServiceManage;
-import com.hikvision.hikvisionmanage.vidicon.radioutil.VehicleTypeAnalysis;
+import com.hikvision.hikvisionmanage.vidicon.vidiconutil.VehicleTypeAnalysis;
 import com.hikvision.hikvisionmanage.utils.HttpClientUtil;
 import com.hikvision.hikvisionmanage.utils.LoggerUtil;
 import com.sun.jna.NativeLong;
@@ -24,10 +24,40 @@ import java.util.*;
  * @author: LuNanTing
  * @create: 2020-05-12 14:49
  **/
-public class RadioAction {
+public class VidiconAction {
+
+    HCNetSDK HCNETSDK = HCNetSDK.INSTANCE;
 
     /**
-     *
+     * lAlarmHandle:报警布防句柄
+     */
+    NativeLong lAlarmHandle;
+
+    /**
+     * fMSFCallBack_V31:报警回调函数实现
+     */
+    FMSGCallBack_V31 fMSFCallBack_V31;
+
+    public VidiconAction(){
+        lAlarmHandle = new NativeLong(-1);
+        fMSFCallBack_V31 = null;
+        boolean initSuc = HCNETSDK.NET_DVR_Init();
+        if (initSuc != true) {
+            LoggerUtil.error("初始化失败");
+            return;
+        }
+        HCNetSDK.NET_DVR_LOCAL_GENERAL_CFG struGeneralCfg = new HCNetSDK.NET_DVR_LOCAL_GENERAL_CFG();
+        // 控制JSON透传报警数据和图片是否分离，0-不分离，1-分离（分离后走COMM_ISAPI_ALARM回调返回）
+        struGeneralCfg.byAlarmJsonPictureSeparate = 1;
+        struGeneralCfg.write();
+
+        if (!HCNETSDK.NET_DVR_SetSDKLocalCfg(17, struGeneralCfg.getPointer())) {
+            LoggerUtil.error("NET_DVR_SetSDKLocalCfg失败");
+        }
+    }
+
+    /**
+     * 报警函数设置
      */
     public class FMSGCallBack_V31 implements HCNetSDK.FMSGCallBack_V31 {
 
