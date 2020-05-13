@@ -4,5 +4,5 @@ server:
     context-path: /HikvisionManage
 
 vidicon:
-  mode: 0 #读取摄像头信息方式
+  mode: 0 #读取摄像头信息方式0接口请求
   url: /comDevManageC/controlGate #获取设备信息的接口

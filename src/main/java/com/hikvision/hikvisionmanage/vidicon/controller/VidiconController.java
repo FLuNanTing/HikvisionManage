@@ -1,6 +1,11 @@
 package com.hikvision.hikvisionmanage.vidicon.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.hikvision.hikvisionmanage.utils.LoggerUtil;
+import com.hikvision.hikvisionmanage.vidicon.service.VidiconService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
@@ -10,8 +15,12 @@ import java.util.Map;
  * @author: LuNanTing
  * @create: 2020-05-12 10:31
  **/
-public class RadioController {
+@RestController
+@RequestMapping("brakeControl")
+public class VidiconController {
 
+    @Autowired
+    private VidiconService vidiconService;
     /**
      *
      * @title {通过指令控制抓拍/道闸摄像头来控制道闸起落}
@@ -31,7 +40,7 @@ public class RadioController {
         String password = linkInfo.get("password").toString();
         Integer port = Integer.valueOf(linkInfo.get("devPort").toString());
         LoggerUtil.info("发送指令时间:" + linkInfo.get("date") + "ms");
-        Map<String, Object> controlBrakeDev = brakeControlService.controlBrakeDev(devIP, port, password, command);
+        Map<String, Object> controlBrakeDev = vidiconService.controlBrakeDev(devIP, port, password, command);
         LoggerUtil.info("解析抬杆耗时:" + (System.currentTimeMillis() - Long.valueOf(linkInfo.get("date").toString()) + "ms"));
         return JSON.toJSONString(controlBrakeDev);
     }
