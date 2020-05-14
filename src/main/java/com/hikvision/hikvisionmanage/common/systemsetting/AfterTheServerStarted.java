@@ -38,7 +38,7 @@ public class AfterTheServerStarted implements ApplicationRunner {
     VidiconAction.FMSGCallBack_V31 fMSFCallBack_V31;
 
     @Autowired
-    private Set<VidiconManage> vidiconManageListBean;
+    private Set<VidiconManage> vidiconManageSetBean;
 
     @Autowired
     private CentralCoreService centralCoreService;
@@ -61,8 +61,8 @@ public class AfterTheServerStarted implements ApplicationRunner {
         if (hCNetSDK == null) {
             hCNetSDK = (HCNetSDK) Native.loadLibrary(HCNetSDK.filePath(), HCNetSDK.class);
         }
-        if (vidiconManageListBean != null || vidiconManageListBean.size() > 0) {
-            vidiconManageListBean.forEach(vidiconManage -> {
+        if (vidiconManageSetBean != null || vidiconManageSetBean.size() > 0) {
+            vidiconManageSetBean.forEach(vidiconManage -> {
                 lAlarmHandle = new NativeLong(-1);
                 String devIp = vidiconManage.getDeviceIp();
                 LoggerUtil.info("设备:" + vidiconManage.getDescription() + ",IP:" + devIp + "正在布防");

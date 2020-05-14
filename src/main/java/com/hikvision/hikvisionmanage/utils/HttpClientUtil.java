@@ -18,6 +18,7 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
+import java.net.SocketTimeoutException;
 import java.util.*;
 
 /**
@@ -56,6 +57,8 @@ public class HttpClientUtil {
 			HttpEntity entity = response.getEntity();
 			String body = EntityUtils.toString(entity, "utf-8");
 			return body;
+		} catch (SocketTimeoutException scoketException){
+			LoggerUtil.error("服务器连接超时");
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

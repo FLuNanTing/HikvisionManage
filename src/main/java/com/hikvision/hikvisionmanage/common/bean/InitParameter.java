@@ -47,7 +47,7 @@ public class InitParameter {
      * @return
      */
     @Bean
-    public Set<VidiconManage> vidiconManageListBean() {
+    public Set<VidiconManage> vidiconManageSetBean() {
         Set<VidiconManage> vidiconManageSet = new HashSet<>();
         Map<String, Object> vidicon = ReadConfigurationUtil.readYamlMap("application.yml", "vidicon");
         Integer getVidiconMode = Integer.valueOf(vidicon.get("mode").toString());
@@ -55,9 +55,11 @@ public class InitParameter {
             //HttpClient获取
             Map<String, Object> readIniConfigurationParameter = ReadConfigurationUtil.readIniConfigurationParameter();
             //获取广播服务群
-            List<String> radioServerList = JSON.parseArray(readIniConfigurationParameter.get("radioServerList").toString(), String.class);
+            List<Map<String,Object>> radioServerList = (List<Map<String, Object>>) readIniConfigurationParameter.get("radioServerList");
+//            List<Map> radioServerList = JSON.parseArray(readIniConfigurationParameter.get("radioServerList").toString(), Map.class);
             radioServerList.forEach(radioServerStr -> {
-                Map<String, Object> radioServerMap = JSON.parseObject(radioServerStr, Map.class);
+//                Map<String, Object> radioServerMap = JSON.parseObject(radioServerStr, Map.class);
+                Map<String , Object> radioServerMap = radioServerStr;
                 String radioServicePort = radioServerMap.get("radioServicePort").toString();
                 String scheme;
                 if ("443".equals(radioServicePort)) {
@@ -65,7 +67,7 @@ public class InitParameter {
                 } else {
                     scheme = "http://";
                 }
-                String url = scheme + radioServerMap.get("radioServiceAddress").toString() + radioServicePort
+                String url = scheme + radioServerMap.get("radioServiceAddress").toString()+":" + radioServicePort
                         + radioServerMap.get("radioServiceProject").toString() + vidicon.get("url");
                 Map<String, Object> responseMap = readIniConfigurationParameter;
                 responseMap.remove("radioServerList");

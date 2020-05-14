@@ -48,6 +48,8 @@ public class ReadConfigurationUtil {
                 radioMap.put("radioServicePort", radioAddressSection.get("radio_port"));
                 radioMap.put("radioServiceProject", radioAddressSection.get("local_project"));
                 radioServerList.add(radioMap);
+                i++;
+                radioAddressSection = ini.get("radio_address_"+i);
             }
             if(radioServerList==null||radioServerList.size()<1){
                 throw new DataValidateFailException("radio_address未配置");
