@@ -4,9 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.hikvision.hikvisionmanage.utils.LoggerUtil;
 import com.hikvision.hikvisionmanage.vidicon.service.VidiconService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -21,6 +23,7 @@ public class VidiconController {
 
     @Autowired
     private VidiconService vidiconService;
+
     /**
      *
      * @title {通过指令控制抓拍/道闸摄像头来控制道闸起落}
@@ -43,5 +46,46 @@ public class VidiconController {
         Map<String, Object> controlBrakeDev = vidiconService.controlBrakeDev(devIP, port, password, command);
         LoggerUtil.info("解析抬杆耗时:" + (System.currentTimeMillis() - Long.valueOf(linkInfo.get("date").toString()) + "ms"));
         return JSON.toJSONString(controlBrakeDev);
+    }
+
+    /**
+     *
+     * @title {获取设备信息}
+     * @author 创建人: LuNanTing
+     * @date 时间： 2018年10月9日
+     * @param bean:传JSON
+     * @return
+     * @return 返回类型：Map<String,Object>
+     *
+     */
+    @RequestMapping("getDevManageInfo")
+    @SuppressWarnings("unchecked")
+    public String getDeviceInformation(String bean) {
+        Map<String, Object> linkInfo = JSON.parseObject(bean, Map.class);
+        Map<String, Object> devManageInfo = vidiconService.getDeviceInformation(linkInfo);
+        return JSON.toJSONString(devManageInfo);
+    }
+
+    /**
+     *
+     * @title {设备重新布防}
+     * @author 创建人: LuNanTing
+     * @date 时间： 2019年6月18日
+     * @param bean
+     * @return
+     * @return 返回类型：Map<String,Object>
+     *
+     */
+    @SuppressWarnings("unchecked")
+    @RequestMapping("afreshProtection")
+    public Map<String, Object> afreshProtection(String bean) {
+        Map<String, Object> map = JSON.parseObject(bean, Map.class);
+        String deviceIp = map.get("devIp").toString();
+        String devicePortStr = map.get("devPort").toString();
+        String devicePassword = map.get("password").toString();
+        Integer devicePort = Integer.valueOf(devicePortStr);
+        String devUserName = "admin";
+        Map<String, Object> mapInfo = vidiconService.afreshProtection(deviceIp, devicePort, devUserName, devicePassword);
+        return mapInfo;
     }
 }

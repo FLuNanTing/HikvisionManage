@@ -60,7 +60,6 @@ public class VidiconAction {
      * 报警函数设置
      */
     public class FMSGCallBack_V31 implements HCNetSDK.FMSGCallBack_V31 {
-
         @Override
         public boolean invoke(NativeLong lCommand, HCNetSDK.NET_DVR_ALARMER pAlarmer, Pointer pAlarmInfo, int dwBufLen, Pointer pUser) {
             callBacksAction(lCommand, pAlarmer, pAlarmInfo, dwBufLen, pUser);

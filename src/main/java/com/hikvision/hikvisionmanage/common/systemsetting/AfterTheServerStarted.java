@@ -14,6 +14,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @program: HikvisionManage
@@ -37,7 +38,7 @@ public class AfterTheServerStarted implements ApplicationRunner {
     VidiconAction.FMSGCallBack_V31 fMSFCallBack_V31;
 
     @Autowired
-    private List<VidiconManage> vidiconManageListBean;
+    private Set<VidiconManage> vidiconManageListBean;
 
     @Autowired
     private CentralCoreService centralCoreService;
