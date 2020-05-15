@@ -62,7 +62,11 @@ public class VidiconController {
     @SuppressWarnings("unchecked")
     public String getDeviceInformation(String bean) {
         Map<String, Object> linkInfo = JSON.parseObject(bean, Map.class);
-        Map<String, Object> devManageInfo = vidiconService.getDeviceInformation(linkInfo);
+        String deviceIp = linkInfo.get("devIp").toString();
+        String devicePortStr = linkInfo.get("devPort").toString();
+        String deviceId = linkInfo.get("devId").toString();
+        String devicePassWord = linkInfo.get("devPassWord").toString();
+        Map<String, Object> devManageInfo = vidiconService.getDeviceInformation(deviceIp,devicePortStr,devicePassWord,deviceId);
         return JSON.toJSONString(devManageInfo);
     }
 

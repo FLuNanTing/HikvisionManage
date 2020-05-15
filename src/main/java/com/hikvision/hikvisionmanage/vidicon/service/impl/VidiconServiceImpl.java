@@ -106,23 +106,18 @@ public class VidiconServiceImpl implements VidiconService {
     /**
      * {通过给定设备IP,端口,用户名,密码来获取设备信息}
      *
-     * @param deviceMap
+     * @param deviceIp
      * @return 返回类型：Map<String,Object>
      * @author 创建人: LuNanTing
      * @date 时间： 2020年5月14日
      */
     @Override
-    public Map<String, Object> getDeviceInformation(Map<String, Object> deviceMap) {
+    public Map<String, Object> getDeviceInformation(String deviceIp,String devicePortStr,String devicePassWord,String deviceId) {
         Map<String, Object> deviceInformationMap = new HashMap<>();
-        String deviceIp = deviceMap.get("devIp").toString();
-        String devicePortStr = deviceMap.get("devPort").toString();
-        String deviceId = deviceMap.get("devId").toString();
         Map<String, Object> devMap = new HashMap<>();
         if (!StringUtils.isEmpty(deviceIp) && (!StringUtils.isEmpty(devicePortStr) || !devicePortStr.equals("0"))) {
             Integer devicePort = Integer.valueOf(devicePortStr);
             String deviceUserName = "admin";
-            String devicePassWord = deviceMap.get("devPassWord").toString();
-
             NativeLong user = loginDevice(deviceIp, devicePort, devicePassWord);
             long userID = user.longValue();
             if (userID == -1) {

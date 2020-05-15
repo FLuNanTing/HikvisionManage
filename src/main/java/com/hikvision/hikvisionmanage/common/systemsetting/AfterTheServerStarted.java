@@ -53,6 +53,7 @@ public class AfterTheServerStarted implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         //启动后需要布防摄像机
         SetupAlarmChan();
+        LoggerUtil.info("服务启动");
     }
 
     private void SetupAlarmChan() {

@@ -42,12 +42,12 @@ public interface VidiconService extends CentralCoreService {
      * {通过给定设备IP,端口,用户名,密码来获取设备信息}
      * @author 创建人: LuNanTing
      * @date 时间： 2020年5月14日
-     * @param deviceMap,设备信息集合
+     * @param deviceIp,设备信息集合
      * @return
      * @return 返回类型：Map<String,Object>
      *
      */
-    Map<String, Object> getDeviceInformation(Map<String , Object> deviceMap);
+    Map<String, Object> getDeviceInformation(String deviceIp,String devicePortStr,String devicePassWord,String deviceId);
 
     /**
      *
