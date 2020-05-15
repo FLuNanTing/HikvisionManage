@@ -10,7 +10,7 @@ import com.sun.jna.NativeLong;
  */
 public interface CentralCoreService {
 
-    HCNetSDK HCNETSDK = HCNetSDK.INSTANCE;
+    static HCNetSDK HCNETSDK = HCNetSDK.INSTANCE;
 
     /** m_strDeviceInfo:设备信息 */
     HCNetSDK.NET_DVR_DEVICEINFO_V30 M_STRDEVICEINFO = null;

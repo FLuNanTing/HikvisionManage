@@ -48,6 +48,9 @@ public interface HCNetSDK extends StdCallLibrary {
 	/*** 宏定义 ***/
 	// 常量
 
+	/** 远程控制道闸宏定义值 */
+	public static final int NET_DVR_BARRIERGATE_CTRL = 3128;
+
 	public static final int MAX_NAMELEN = 16; // DVR本地登陆名
 	public static final int MAX_RIGHT = 32; // 设备支持的权限（1-12表示本地权限，13-32表示远程权限）
 	public static final int NAME_LEN = 32; // 用户名长度
@@ -1451,6 +1454,32 @@ public interface HCNetSDK extends StdCallLibrary {
 																							 */
 		public int dwPtzNum; /* 有效的ptz协议数目，从0开始(即计算时加1) */
 		public byte[] byRes = new byte[8];
+	}
+
+	/**
+	 * @{道闸摄像头参数配置}
+	 * @author 创建人: LuNanTing
+	 * @Title 标 题: BarrierGateDevBase.java
+	 * @update 修改人：LuNanTing
+	 * @date 修改事件：2018年10月31日
+	 */
+	public static class NET_DVR_BARRIERGATE_CFG extends Structure {
+		public int dwSize;
+		public int dwChannel; // 通道号
+		public byte byLaneNo; // 道闸号（0-表示无效值(设备需要做有效值判断),1-道闸1）
+		/*
+		 *
+		 * 若老的平台不支持byUnlock字段，该字段将赋值为0，通过“0-关闭道闸,1-开启道闸,2-停止道闸”中的任何一种操作皆可进行解锁。
+		 *
+		 * 若新平台支持byUnlock字段，需byUnlock字段赋值为1，并结合4~解锁道闸来进行解锁。byUnlock字段赋值为1后，“0-
+		 * 关闭道闸,1- 开启道闸,2-停止道闸”操作将不可用于解锁。
+		 *
+		 */
+		public byte byBarrierGateCtrl; // 0-关闭道闸,1-开启道闸,2-停止道闸3-锁定道闸,4~解锁道闸
+		public byte byEntranceNo; // 出入口编号[1,8]
+		public byte byUnlock; // 启用解锁使能，0~为不启用，1~启用
+		public byte[] byRes = new byte[12];
+
 	}
 	/*************************** 云台类型(end) ******************************/
 	public static class NET_DVR_DECODERCFG_V30 extends Structure {// 通道解码器(云台)参数配置(9000扩展)
@@ -4254,6 +4283,9 @@ public interface HCNetSDK extends StdCallLibrary {
 
 	boolean NET_DVR_SetDVRMessageCallBack_V30(FMSGCallBack fMessageCallBack, Pointer pUser);
 	boolean NET_DVR_SetDVRMessageCallBack_V31(FMSGCallBack_V31 fMessageCallBack, Pointer pUser);
+
+	/** 通过摄像头控制道闸 */
+	boolean NET_DVR_RemoteControl(NativeLong lUserID, int dwCommand, Pointer lpInBuffer, int dwInBufferSize);
 
 	boolean NET_DVR_SetConnectTime(int dwWaitTime, int dwTryTimes);
 	boolean NET_DVR_SetReconnect(int dwInterval, boolean bEnableRecon);

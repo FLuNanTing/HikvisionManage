@@ -7,13 +7,15 @@ import com.hikvision.hikvisionmanage.devicemanage.bo.VidiconManage;
 import com.hikvision.hikvisionmanage.utils.HttpClientUtil;
 import com.hikvision.hikvisionmanage.utils.LoggerUtil;
 import com.hikvision.hikvisionmanage.utils.ReadConfigurationUtil;
+import com.hikvision.hikvisionmanage.vidicon.service.VidiconService;
 import com.sun.jna.NativeLong;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * @program: HikvisionManage
@@ -31,6 +33,9 @@ public class InitParameter {
      */
     NativeLong lAlarmHandle;
 
+    @Autowired
+    private VidiconService vidiconService;
+
     /**
      * 将配置信息容器管理
      *
@@ -42,44 +47,68 @@ public class InitParameter {
         return configurationParameter;
     }
 
+    /**
+     * 将摄像头的参数纳入set集中，并加入bean容器
+     *
+     * @return
+     */
     @Bean
-    public List<VidiconManage> vidiconManageListBean() {
-        List<VidiconManage> list = new ArrayList<>();
+    public Set<VidiconManage> vidiconManageSetBean() {
+        Set<VidiconManage> vidiconManageSet = new HashSet<>();
         Map<String, Object> vidicon = ReadConfigurationUtil.readYamlMap("application.yml", "vidicon");
-        Integer getvidiconMode = Integer.valueOf(vidicon.get("mode").toString());
-        if (getvidiconMode.equals(0)) {
+        Integer getVidiconMode = Integer.valueOf(vidicon.get("mode").toString());
+        if (getVidiconMode.equals(0)) {
             //HttpClient获取
             Map<String, Object> readIniConfigurationParameter = ReadConfigurationUtil.readIniConfigurationParameter();
-            String radioServicePort = readIniConfigurationParameter.get("radioServicePort").toString();
-            String scheme;
-            if ("443".equals(radioServicePort)) {
-                scheme = "https://";
-            } else {
-                scheme = "http://";
-            }
-            String url = scheme + readIniConfigurationParameter.get("radioServiceAddress").toString() + radioServicePort + readIniConfigurationParameter.get("radioServiceProject").toString() + vidicon.get("url");
-            String requestMap = HttpClientUtil.submitPostRequestMap(url, readIniConfigurationParameter);
-            if(requestMap == null){
-                LoggerUtil.error("未找到设备信息");
-                System.exit(0);
-            }
-            //解析返回数据
-            List<String> requestDataList = JSON.parseObject(requestMap,List.class);
-            if(requestDataList!=null&&requestDataList.size()>0){
-                requestDataList.forEach(str ->{
-                    VidiconManage vidiconManage = new VidiconManage();
-                    Map<String , Object> requestData = JSON.parseObject(str, Map.class);
-                    vidiconManage.setCompanyCode(requestData.get("companyCode").toString());
-                    vidiconManage.setPassword(requestData.get("password").toString());
-                    vidiconManage.setServiceIp(readIniConfigurationParameter.get("hikvisionServiceAddress").toString());
-                    vidiconManage.setVidiconModel(Integer.valueOf(requestData.get("vidiconModel").toString()));
-                    vidiconManage.setDescription(requestData.get("description").toString());
-                    vidiconManage.setDeviceIp(requestData.get("deviceIp").toString());
-                    vidiconManage.setDevicePort(Integer.valueOf(requestData.get("devicePort").toString()));
-                    list.add(vidiconManage);
-                });
-            }
+            //获取广播服务群
+            List<Map<String, Object>> radioServerList = (List<Map<String, Object>>) readIniConfigurationParameter.get("radioServerList");
+            radioServerList.forEach(radioServerStr -> {
+                Map<String, Object> radioServerMap = radioServerStr;
+                String radioServicePort = radioServerMap.get("radioServicePort").toString();
+                String scheme;
+                if ("443".equals(radioServicePort)) {
+                    scheme = "https://";
+                } else {
+                    scheme = "http://";
+                }
+                String url = scheme + radioServerMap.get("radioServiceAddress").toString() + ":" + radioServicePort
+                        + radioServerMap.get("radioServiceProject").toString() + vidicon.get("url");
+                Map<String, Object> responseMap = readIniConfigurationParameter;
+                responseMap.remove("radioServerList");
+                String requestMap = HttpClientUtil.submitPostRequestMap(url, responseMap);
+                if (requestMap == null) {
+                    LoggerUtil.error("未找到设备");
+                } else {
+                    //解析返回数据
+                    Map<String, Object> requestDataMap = JSON.parseObject(requestMap, Map.class);
+                    List<Map> requestDataList = JSON.parseArray(requestDataMap.get("data").toString(), Map.class);
+                    if (requestDataList != null && requestDataList.size() > 0) {
+                        requestDataList.forEach(str -> {
+                            VidiconManage vidiconManage = new VidiconManage();
+                            Map<String, Object> requestData = str;
+                            vidiconManage.setCompanyCode(requestData.get("companyCode").toString());
+                            vidiconManage.setPassword(requestData.get("password").toString());
+                            vidiconManage.setServiceIp(readIniConfigurationParameter.get("hikvisionServiceAddress").toString());
+                            vidiconManage.setVidiconModel(Integer.valueOf(requestData.get("vidiconModel").toString()));
+                            vidiconManage.setDescription(requestData.get("description").toString());
+                            vidiconManage.setDeviceIp(requestData.get("deviceIp").toString());
+                            vidiconManage.setDevicePort(Integer.valueOf(requestData.get("devicePort").toString()));
+                            Object deviceId = requestData.get("deviceId");
+                            if(StringUtils.isEmpty(deviceId)){
+                                Map<String , Object> deviceInformationMap = vidiconService.getDeviceInformation(vidiconManage.getDeviceIp(),vidiconManage.getDevicePort().toString(),vidiconManage.getPassword(),null);
+                                System.out.println(deviceInformationMap);
+
+                            }
+                            vidiconManageSet.add(vidiconManage);
+                        });
+                    }
+                }
+            });
         }
-        return list;
+        if (vidiconManageSet == null || vidiconManageSet.isEmpty()) {
+            LoggerUtil.error("未找到设备");
+            System.exit(0);
+        }
+        return vidiconManageSet;
     }
 }
