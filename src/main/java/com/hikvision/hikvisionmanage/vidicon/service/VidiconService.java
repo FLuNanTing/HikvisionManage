@@ -2,8 +2,7 @@ package com.hikvision.hikvisionmanage.vidicon.service;
 
 import com.hikvision.hikvisionmanage.core.sdk.HCNetSDK;
 import com.hikvision.hikvisionmanage.devicemanage.service.CentralCoreService;
-import com.hikvision.hikvisionmanage.vidicon.vidiconaction.VidiconAction;
-import com.sun.jna.NativeLong;
+
 
 import java.util.Map;
 
@@ -30,11 +29,12 @@ public interface VidiconService extends CentralCoreService {
      * @param devicePort,设备端口
      * @param password,登录密码
      * @param command,指令{0-关闭道闸,1-开启道闸,2-停止道闸3-锁定道闸,4~解锁道闸}
+     * @param canRelease 放行提示状态
      * @return
      * @return 返回类型：Map<String,Object>
      *
      */
-    Map<String, Object> controlBrakeDev(String deviceIp, Integer devicePort, String password, Integer command);
+    Map<String, Object> controlBrakeDev(String deviceIp, Integer devicePort, String password, Integer command, Object canRelease);
 
 
     /**

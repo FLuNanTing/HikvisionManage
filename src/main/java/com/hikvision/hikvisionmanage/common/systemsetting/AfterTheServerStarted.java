@@ -13,7 +13,6 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -69,7 +68,8 @@ public class AfterTheServerStarted implements ApplicationRunner {
                 LoggerUtil.info("设备:" + vidiconManage.getDescription() + ",IP:" + devIp + "正在布防");
                 String password = vidiconManage.getPassword();
                 int port = vidiconManage.getDevicePort().intValue();
-                NativeLong loginDev = centralCoreService.loginDevice(devIp, port, password);
+                String userName = "admin";
+                NativeLong loginDev = centralCoreService.loginDevice(devIp, port, userName, password);
                 if (loginDev.intValue() == -1) {
 //                    int net_DVR_GetLastError = hCNetSDK.NET_DVR_GetLastError();
                     LoggerUtil.error("设备登陆失败" );

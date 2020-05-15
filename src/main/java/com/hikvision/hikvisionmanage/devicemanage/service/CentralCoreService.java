@@ -26,5 +26,5 @@ public interface CentralCoreService {
      * @return 返回类型：NativeLong
      *
      */
-    NativeLong loginDevice(String deviceIp, int devicePort, String password);
+    NativeLong loginDevice(String deviceIp, int devicePort,String userName, String password);
 }

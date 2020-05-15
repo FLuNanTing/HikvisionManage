@@ -1,8 +1,6 @@
 package com.hikvision.hikvisionmanage.common.bean;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.hikvision.hikvisionmanage.core.sdk.HCNetSDK;
 import com.hikvision.hikvisionmanage.devicemanage.bo.VidiconManage;
 import com.hikvision.hikvisionmanage.utils.HttpClientUtil;
 import com.hikvision.hikvisionmanage.utils.LoggerUtil;
@@ -15,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * @program: HikvisionManage
@@ -25,8 +22,6 @@ import java.util.logging.Logger;
  **/
 @Configuration
 public class InitParameter {
-
-    static HCNetSDK hCNetSDK = HCNetSDK.INSTANCE;
 
     /**
      * 报警布防句柄
@@ -96,8 +91,13 @@ public class InitParameter {
                             Object deviceId = requestData.get("deviceId");
                             if(StringUtils.isEmpty(deviceId)){
                                 Map<String , Object> deviceInformationMap = vidiconService.getDeviceInformation(vidiconManage.getDeviceIp(),vidiconManage.getDevicePort().toString(),vidiconManage.getPassword(),null);
-                                System.out.println(deviceInformationMap);
-
+                                if(deviceInformationMap!=null&&deviceInformationMap.get("errorCode").equals(0)){
+                                    Map deviceInfo = JSON.parseObject(deviceInformationMap.get("data").toString(),Map.class);
+                                    Map<String , Object> deviceInformation = deviceInfo;
+                                    vidiconManage.setVidiconId(deviceInformation.get("deviceId").toString());
+                                }else{
+                                    LoggerUtil.error(vidiconManage.getDescription() + ":" + deviceInformationMap.get("errorMessage").toString());
+                                }
                             }
                             vidiconManageSet.add(vidiconManage);
                         });
