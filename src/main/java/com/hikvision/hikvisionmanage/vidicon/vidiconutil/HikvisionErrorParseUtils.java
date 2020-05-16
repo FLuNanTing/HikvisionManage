@@ -32,6 +32,7 @@ public class HikvisionErrorParseUtils {
 
     private static String parseErrorCode(int errorCode) {
         String message = "";
+        String msg = VidiconErrorCodeEnum.getErrorMsg(errorCode);
         switch (errorCode) {
             case 1 :
                 message = "设备登录密码错误";

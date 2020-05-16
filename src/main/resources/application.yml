@@ -3,6 +3,10 @@ server:
   servlet:
     context-path: /HikvisionManage
 
-vidicon:
+communications:
   mode: 0 #读取摄像头信息方式0接口请求
+vidicon:
   url: /comDevManageC/getDeviceInformation #获取设备信息的接口
+
+ledscreen:
+  url: /ledScreenManage/getDeviceInformation #获取led设备信息的接口
