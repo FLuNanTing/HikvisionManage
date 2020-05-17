@@ -1,5 +1,6 @@
 package com.hikvision.hikvisionmanage.devicemanage.service;
 
+import com.hikvision.hikvisionmanage.core.sdk.CSDKExport;
 import com.hikvision.hikvisionmanage.core.sdk.HCNetSDK;
 import com.sun.jna.NativeLong;
 
@@ -11,6 +12,8 @@ import com.sun.jna.NativeLong;
 public interface CentralCoreService {
 
     static HCNetSDK HCNETSDK = HCNetSDK.INSTANCE;
+
+    static CSDKExport sdkExport = CSDKExport.INSTANCE;
 
     /** m_strDeviceInfo:设备信息 */
     HCNetSDK.NET_DVR_DEVICEINFO_V30 M_STRDEVICEINFO = null;
@@ -26,5 +29,5 @@ public interface CentralCoreService {
      * @return 返回类型：NativeLong
      *
      */
-    NativeLong loginDevice(String deviceIp, int devicePort, String password);
+    NativeLong loginDevice(String deviceIp, int devicePort,String userName, String password);
 }

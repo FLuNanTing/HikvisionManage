@@ -1,20 +1,23 @@
 package com.hikvision.hikvisionmanage.vidicon.service.impl;
 
 import com.hikvision.hikvisionmanage.core.sdk.HCNetSDK;
+import com.hikvision.hikvisionmanage.devicemanage.bo.VidiconManage;
 import com.hikvision.hikvisionmanage.utils.LoggerUtil;
 import com.hikvision.hikvisionmanage.vidicon.service.VidiconService;
-import com.hikvision.hikvisionmanage.vidicon.vidiconaction.VidiconAction;
 import com.hikvision.hikvisionmanage.vidicon.vidiconaction.VidiconAction.FMSGCallBack_V31;
 import com.hikvision.hikvisionmanage.vidicon.vidiconutil.HikvisionErrorParseUtils;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.NativeLongByReference;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @program: HikvisionManage
@@ -35,22 +38,24 @@ public class VidiconServiceImpl implements VidiconService {
      */
     FMSGCallBack_V31 fMsfCallBackV31;
 
+    @Autowired
+    private Set<VidiconManage> vidiconManageSetBean;
     /**
      * {登录设备}
      *
      * @param deviceIp
      * @param devicePort
+     * @param userName
      * @param password
      * @return 返回类型：NativeLong
      * @author 创建人: LuNanTing
      * @date 时间： 2019年5月29日
      */
     @Override
-    public NativeLong loginDevice(String deviceIp, int devicePort, String password) {
+    public NativeLong loginDevice(String deviceIp, int devicePort,String userName, String password) {
         // 注册之前先注销已注册的用户,预览情况下不可注销
         NativeLong lUserId = new NativeLong(-1);
-        String devUserName = "admin";
-        lUserId = HCNETSDK.NET_DVR_Login_V30(deviceIp, (short) devicePort, devUserName, password, M_STRDEVICEINFO);
+        lUserId = HCNETSDK.NET_DVR_Login_V30(deviceIp, (short) devicePort, userName, password, M_STRDEVICEINFO);
         return lUserId;
     }
 
@@ -61,18 +66,21 @@ public class VidiconServiceImpl implements VidiconService {
      * @param devicePort
      * @param password
      * @param command
+     * @param canRelease
      * @return 返回类型：Map<String,Object>
      * @author 创建人: LuNanTing
      * @date 时间： 2020年5月13日
      */
     @Override
-    public Map<String, Object> controlBrakeDev(String deviceIp, Integer devicePort, String password, Integer command) {
+    public Map<String, Object> controlBrakeDev(String deviceIp, Integer devicePort, String password, Integer command, Object canRelease) {
         Map<String, Object> map = new HashMap<>();
         int portInt = devicePort.intValue();
-        NativeLong user = loginDevice(deviceIp, portInt, password);
+        String userName = "admin";
+        NativeLong user = loginDevice(deviceIp, portInt,userName, password);
         long userId = user.longValue();
         if (userId == -1) {
             int net_DVR_GetLastError = HCNETSDK.NET_DVR_GetLastError();
+            map = HikvisionErrorParseUtils.getErrorMassage(net_DVR_GetLastError);
             return map;
         } else {
             HCNetSDK.NET_DVR_BARRIERGATE_CFG struGateCfg = new HCNetSDK.NET_DVR_BARRIERGATE_CFG();
@@ -82,20 +90,28 @@ public class VidiconServiceImpl implements VidiconService {
             struGateCfg.dwChannel = 1;
             // 车道号
             struGateCfg.byLaneNo = 1;
-            // 开道闸
+            // 开/关道闸 0-关闭道闸,1-开启道闸,2-停止道闸3-锁定道闸,4~解锁道闸，详情请查看接口描述
             struGateCfg.byBarrierGateCtrl = command.byteValue();
             // 出入口编号，取值范围：[1,8]
             struGateCfg.byEntranceNo = 1;
             struGateCfg.write();
             boolean bCtrl = HCNETSDK.NET_DVR_RemoteControl(user, HCNetSDK.NET_DVR_BARRIERGATE_CTRL, struGateCfg.getPointer(), struGateCfg.size());
             if (!bCtrl) {
-                LoggerUtil.error("NET_DVR_BARRIERGATE_CTRL道闸控制失败");
+                LoggerUtil.error("道闸控制失败");
                 map.put("errorCode", -2);
                 map.put("errorMessage", "道闸控制失败");
             } else {
-                LoggerUtil.info("NET_DVR_BARRIERGATE_CTRL道闸控制成功");
+                LoggerUtil.info("道闸控制成功");
                 map.put("errorCode", 0);
                 map.put("errorMessage", "道闸控制成功");
+            }
+            //控闸伴随着LED屏幕控制
+            if(canRelease!=null){
+                Optional<VidiconManage> vidiconManageOptional = vidiconManageSetBean.stream().filter(item -> item.getDeviceIp().equals(deviceIp)).findFirst();
+                if(vidiconManageOptional.isPresent()){
+                    VidiconManage vidiconManage = vidiconManageOptional.get();
+                    //控制LED
+                }
             }
         }
 //        logOut(user);
@@ -118,7 +134,7 @@ public class VidiconServiceImpl implements VidiconService {
         if (!StringUtils.isEmpty(deviceIp) && (!StringUtils.isEmpty(devicePortStr) || !devicePortStr.equals("0"))) {
             Integer devicePort = Integer.valueOf(devicePortStr);
             String deviceUserName = "admin";
-            NativeLong user = loginDevice(deviceIp, devicePort, devicePassWord);
+            NativeLong user = loginDevice(deviceIp, devicePort,deviceUserName, devicePassWord);
             long userID = user.longValue();
             if (userID == -1) {
                 int netDvrGetLastError = HCNETSDK.NET_DVR_GetLastError();
@@ -181,7 +197,7 @@ public class VidiconServiceImpl implements VidiconService {
     public Map<String, Object> afreshProtection(String deviceIp, Integer devicePort, String userName, String password) {
         Map<String, Object> map = new HashMap<>();
         // 首先登陆
-        NativeLong loginDev = loginDevice(deviceIp, devicePort, password);
+        NativeLong loginDev = loginDevice(deviceIp, devicePort, userName, password);
         if (loginDev.intValue() == -1) {
             int net_DVR_GetLastError = HCNETSDK.NET_DVR_GetLastError();
             map = HikvisionErrorParseUtils.getErrorMassage(net_DVR_GetLastError);
