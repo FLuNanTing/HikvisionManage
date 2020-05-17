@@ -1,6 +1,7 @@
 package com.hikvision.hikvisionmanage.common.bean;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.hikvision.hikvisionmanage.devicemanage.bo.LedScreenManage;
 import com.hikvision.hikvisionmanage.devicemanage.bo.VidiconManage;
 import com.hikvision.hikvisionmanage.utils.HttpClientUtil;
@@ -29,14 +30,12 @@ import java.util.*;
 public class InitParameter {
 
 
-    @Autowired
-    private ApplicationContext applicationContext;
-
     /**
      * 报警布防句柄
      */
     NativeLong lAlarmHandle;
-
+    @Autowired
+    private ApplicationContext applicationContext;
     @Autowired
     private VidiconService vidiconService;
 
@@ -99,13 +98,13 @@ public class InitParameter {
                             vidiconManage.setDeviceIp(requestData.get("deviceIp").toString());
                             vidiconManage.setDevicePort(Integer.valueOf(requestData.get("devicePort").toString()));
                             Object deviceId = requestData.get("deviceId");
-                            if(StringUtils.isEmpty(deviceId)){
-                                Map<String , Object> deviceInformationMap = (new VidiconServiceImpl()).getDeviceInformation(vidiconManage.getDeviceIp(),vidiconManage.getDevicePort().toString(),vidiconManage.getPassword(),null);
-                                if(deviceInformationMap!=null&&deviceInformationMap.get("errorCode").equals(0)){
-                                    Map deviceInfo = JSON.parseObject(deviceInformationMap.get("data").toString(),Map.class);
-                                    Map<String , Object> deviceInformation = deviceInfo;
+                            if (StringUtils.isEmpty(deviceId)) {
+                                Map<String, Object> deviceInformationMap = (new VidiconServiceImpl()).getDeviceInformation(vidiconManage.getDeviceIp(), vidiconManage.getDevicePort().toString(), vidiconManage.getPassword(), null);
+                                if (deviceInformationMap != null && deviceInformationMap.get("errorCode").equals(0)) {
+                                    Map deviceInfo = JSON.parseObject(deviceInformationMap.get("data").toString(), Map.class);
+                                    Map<String, Object> deviceInformation = deviceInfo;
                                     vidiconManage.setVidiconId(deviceInformation.get("deviceId").toString());
-                                }else{
+                                } else {
                                     LoggerUtil.error(vidiconManage.getDescription() + ":" + deviceInformationMap.get("errorMessage").toString());
                                 }
                             }
@@ -124,11 +123,12 @@ public class InitParameter {
 
     /**
      * 将该服务下的LED屏纳入管理
+     *
      * @return
      */
     @DependsOn("vidiconManageSetBean")
     @Bean
-    public Set<LedScreenManage> ledScreenManageSetBean (){
+    public Set<LedScreenManage> ledScreenManageSetBean() {
         Set<LedScreenManage> ledScreenManageSet = new HashSet<>();
         Map<String, Object> ledScreen = ReadConfigurationUtil.readYamlMap("application.yml", "ledscreen");
         Integer communicationsMode = readConfigurationCommunicationsMode();
@@ -150,38 +150,40 @@ public class InitParameter {
                         + radioServerMap.get("radioServiceProject").toString() + ledScreen.get("url");
                 //获取摄像头Bean对象
                 Object vidiconManageObjectBean = applicationContext.getBean("vidiconManageSetBean");
-                if(vidiconManageObjectBean == null){
+                if (vidiconManageObjectBean == null) {
                     vidiconManageObjectBean = vidiconManageSetBean();
                 }
                 Set<VidiconManage> vidiconManageSetBean = (Set<VidiconManage>) vidiconManageObjectBean;
                 List<VidiconManage> setList = new ArrayList<>(vidiconManageSetBean);
-                List<Map<String ,Object>> responseList = new ArrayList<>();
-                setList.forEach( vidiconManage -> {
-                    Map<String ,Object> map = new HashMap<>();
-                    map.put("deviceIp",vidiconManage.getDeviceIp());
-                    map.put("devicePort",vidiconManage.getDevicePort());
-                    map.put("serviceIp",vidiconManage.getServiceIp());
-                    map.put("servicePort",vidiconManage.getServicePort());
+                List<Map<String, Object>> responseList = new ArrayList<>();
+                setList.forEach(vidiconManage -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("deviceIp", vidiconManage.getDeviceIp());
+                    map.put("devicePort", vidiconManage.getDevicePort());
+                    map.put("serviceIp", vidiconManage.getServiceIp());
+                    map.put("servicePort", vidiconManage.getServicePort());
                     responseList.add(map);
                 });
-                Map<String , Object> responseMap = new HashMap<>();
-                responseMap.put("deviceList",responseList);
+                Map<String, Object> responseMap = new HashMap<>();
+                responseMap.put("deviceList", JSON.toJSON(responseList));
                 String requestMap = HttpClientUtil.submitPostRequestMap(url, responseMap);
-                if (requestMap == null) {
+                if (requestMap == null || StringUtils.isEmpty(requestMap)) {
                     LoggerUtil.error("未找到设备");
                 } else {
                     //解析返回数据
-                    List<Map> requestDataList = JSON.parseArray(requestMap, Map.class);
-                    if (requestDataList != null && requestDataList.size() > 0) {
+                    Map<String, Object> requestData = JSON.parseObject(requestMap, Map.class);
+                    Object requestForData = requestData.get("data");
+                    if (requestForData != null) {
+                        List<Map> requestDataList = JSON.parseArray(requestForData.toString(),Map.class);
                         requestDataList.forEach(str -> {
                             LedScreenManage ledScreenManage = new LedScreenManage();
-                            Map<String, Object> requestData = str;
-                            ledScreenManage.setDeviceIp(requestData.get("ledScreenIp").toString());
-                            ledScreenManage.setDevicePort(Integer.valueOf(requestData.get("ledScreenPort").toString()));
-                            ledScreenManage.setDescription(requestData.get("description").toString());
-                            String vidiconIp = requestData.get("vidiconIp").toString();
+                            Map<String, Object> requestDataMap = str;
+                            ledScreenManage.setDeviceIp(requestDataMap.get("ledScreenIp").toString());
+                            ledScreenManage.setDevicePort(Integer.valueOf(requestDataMap.get("ledScreenPort").toString()));
+                            ledScreenManage.setDescription(requestDataMap.get("description").toString());
+                            String vidiconIp = requestDataMap.get("vidiconIp").toString();
                             Optional<VidiconManage> optionalVidiconManage = setList.stream().filter(vidicon -> vidicon.getDeviceIp().equals(vidiconIp)).findAny();
-                            if(optionalVidiconManage!=null){
+                            if (optionalVidiconManage != null) {
                                 ledScreenManage.setVidiconManage(optionalVidiconManage.get());
                             }
                             ledScreenManageSet.add(ledScreenManage);
@@ -198,14 +200,14 @@ public class InitParameter {
      *
      * @return mode:0HttpClient
      */
-    private Integer readConfigurationCommunicationsMode(){
+    private Integer readConfigurationCommunicationsMode() {
         Map<String, Object> communications = ReadConfigurationUtil.readYamlMap("application.yml", "communications");
-        if(communications==null||communications.isEmpty()) {
+        if (communications == null || communications.isEmpty()) {
             LoggerUtil.error("未配置服务通信类型");
             System.exit(0);
         }
         Object modeObject = communications.get("mode");
-        if(!MasterUtils.checkIsNumber(modeObject)){
+        if (!MasterUtils.checkIsNumber(modeObject)) {
             LoggerUtil.error("通信类型未配置或配置错误");
         }
         Integer communicationsMode = Integer.valueOf(communications.get("mode").toString());
