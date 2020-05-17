@@ -34,7 +34,7 @@ public interface VidiconService extends CentralCoreService {
      * @return 返回类型：Map<String,Object>
      *
      */
-    Map<String, Object> controlBrakeDev(String deviceIp, Integer devicePort, String password, Integer command, Object canRelease);
+    Map<String, Object> controlBrakeDev(String deviceIp, Integer devicePort, String password, Integer command, Object canRelease, String plateNumber);
 
 
     /**

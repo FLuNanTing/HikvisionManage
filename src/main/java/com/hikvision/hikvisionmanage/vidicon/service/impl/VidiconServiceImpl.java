@@ -1,8 +1,11 @@
 package com.hikvision.hikvisionmanage.vidicon.service.impl;
 
 import com.hikvision.hikvisionmanage.core.sdk.HCNetSDK;
+import com.hikvision.hikvisionmanage.devicemanage.bo.LedScreenManage;
 import com.hikvision.hikvisionmanage.devicemanage.bo.VidiconManage;
+import com.hikvision.hikvisionmanage.ledscreen.service.impl.LedConfigurationServiceImpl;
 import com.hikvision.hikvisionmanage.utils.LoggerUtil;
+import com.hikvision.hikvisionmanage.utils.MasterUtils;
 import com.hikvision.hikvisionmanage.vidicon.service.VidiconService;
 import com.hikvision.hikvisionmanage.vidicon.vidiconaction.VidiconAction.FMSGCallBack_V31;
 import com.hikvision.hikvisionmanage.vidicon.vidiconutil.HikvisionErrorParseUtils;
@@ -40,6 +43,13 @@ public class VidiconServiceImpl implements VidiconService {
 
     @Autowired
     private Set<VidiconManage> vidiconManageSetBean;
+
+    @Autowired
+    private Set<LedScreenManage> ledScreenManageSetBean;
+
+    @Autowired
+    private LedConfigurationServiceImpl ledConfigurationService;
+
     /**
      * {登录设备}
      *
@@ -52,7 +62,7 @@ public class VidiconServiceImpl implements VidiconService {
      * @date 时间： 2019年5月29日
      */
     @Override
-    public NativeLong loginDevice(String deviceIp, int devicePort,String userName, String password) {
+    public NativeLong loginDevice(String deviceIp, int devicePort, String userName, String password) {
         // 注册之前先注销已注册的用户,预览情况下不可注销
         NativeLong lUserId = new NativeLong(-1);
         lUserId = HCNETSDK.NET_DVR_Login_V30(deviceIp, (short) devicePort, userName, password, M_STRDEVICEINFO);
@@ -72,11 +82,11 @@ public class VidiconServiceImpl implements VidiconService {
      * @date 时间： 2020年5月13日
      */
     @Override
-    public Map<String, Object> controlBrakeDev(String deviceIp, Integer devicePort, String password, Integer command, Object canRelease) {
+    public Map<String, Object> controlBrakeDev(String deviceIp, Integer devicePort, String password, Integer command, Object canRelease, String plateNumber) {
         Map<String, Object> map = new HashMap<>();
         int portInt = devicePort.intValue();
         String userName = "admin";
-        NativeLong user = loginDevice(deviceIp, portInt,userName, password);
+        NativeLong user = loginDevice(deviceIp, portInt, userName, password);
         long userId = user.longValue();
         if (userId == -1) {
             int net_DVR_GetLastError = HCNETSDK.NET_DVR_GetLastError();
@@ -106,15 +116,24 @@ public class VidiconServiceImpl implements VidiconService {
                 map.put("errorMessage", "道闸控制成功");
             }
             //控闸伴随着LED屏幕控制
-            if(canRelease!=null){
+            if (canRelease != null && MasterUtils.checkIsNumber(canRelease)) {
+                Integer release = Integer.valueOf(canRelease.toString());
                 Optional<VidiconManage> vidiconManageOptional = vidiconManageSetBean.stream().filter(item -> item.getDeviceIp().equals(deviceIp)).findFirst();
-                if(vidiconManageOptional.isPresent()){
+                if (vidiconManageOptional.isPresent()) {
                     VidiconManage vidiconManage = vidiconManageOptional.get();
                     //控制LED
+                    Optional<LedScreenManage> onlyLedScreenManage = ledScreenManageSetBean.stream().filter(ledScreenManage -> ledScreenManage.getVidiconManage().getDeviceIp().equals(deviceIp)).findFirst();
+                    if (onlyLedScreenManage.isPresent()) {
+                        LedScreenManage entity = onlyLedScreenManage.get();
+                        //生成LED文字
+                        ledConfigurationService.textControl(entity.getDeviceIp(), entity.getDevicePort(), plateNumber, release);
+                        //生成语音
+                        ledConfigurationService.soundControl(entity.getDeviceIp(), entity.getDevicePort(), plateNumber, release);
+                    }
                 }
             }
         }
-//        logOut(user);
+        logOut(user);
         map.put("date", System.currentTimeMillis());
         return map;
     }
@@ -128,13 +147,14 @@ public class VidiconServiceImpl implements VidiconService {
      * @date 时间： 2020年5月14日
      */
     @Override
-    public Map<String, Object> getDeviceInformation(String deviceIp,String devicePortStr,String devicePassWord,String deviceId) {
+    public Map<String, Object> getDeviceInformation(String deviceIp, String devicePortStr, String devicePassWord, String deviceId) {
         Map<String, Object> deviceInformationMap = new HashMap<>();
         Map<String, Object> devMap = new HashMap<>();
+        NativeLong user = null;
         if (!StringUtils.isEmpty(deviceIp) && (!StringUtils.isEmpty(devicePortStr) || !devicePortStr.equals("0"))) {
             Integer devicePort = Integer.valueOf(devicePortStr);
             String deviceUserName = "admin";
-            NativeLong user = loginDevice(deviceIp, devicePort,deviceUserName, devicePassWord);
+            user = loginDevice(deviceIp, devicePort, deviceUserName, devicePassWord);
             long userID = user.longValue();
             if (userID == -1) {
                 int netDvrGetLastError = HCNETSDK.NET_DVR_GetLastError();
@@ -176,9 +196,7 @@ public class VidiconServiceImpl implements VidiconService {
             deviceInformationMap.put("errorMessage", "设备IP,端口或者设备ID为空,无法追踪设备");
             deviceInformationMap.put("data", null);
         }
-
-
-//        logOut(user);
+        logOut(user);
         return devMap;
     }
 
@@ -229,7 +247,17 @@ public class VidiconServiceImpl implements VidiconService {
                 map.put("data", null);
             }
         }
-//        logOut(loginDev);
+        logOut(loginDev);
         return map;
+    }
+
+
+    public void logOut(NativeLong lUserId) {
+        boolean netDvrLogoutV30 = HCNETSDK.NET_DVR_Logout_V30(lUserId);
+        if (!netDvrLogoutV30) {
+            int netDvrGetLastError = HCNETSDK.NET_DVR_GetLastError();
+            Map<String, Object> map = HikvisionErrorParseUtils
+                    .getErrorMassage(netDvrGetLastError);
+        }
     }
 }

@@ -38,8 +38,9 @@ public class VidiconController {
         String password = linkInfo.get("password").toString();
         Integer port = Integer.valueOf(linkInfo.get("devPort").toString());
         Object canRelease = linkInfo.get("canRelease");
+        String plateNumber = linkInfo.get("plateNumber").toString();
         LoggerUtil.info("发送指令时间:" + linkInfo.get("date") + "ms");
-        Map<String, Object> controlBrakeDev = vidiconService.controlBrakeDev(devIP, port, password, command,canRelease);
+        Map<String, Object> controlBrakeDev = vidiconService.controlBrakeDev(devIP, port, password, command,canRelease,plateNumber);
         LoggerUtil.info("解析抬杆耗时:" + (System.currentTimeMillis() - Long.valueOf(linkInfo.get("date").toString()) + "ms"));
         return JSON.toJSONString(controlBrakeDev);
     }

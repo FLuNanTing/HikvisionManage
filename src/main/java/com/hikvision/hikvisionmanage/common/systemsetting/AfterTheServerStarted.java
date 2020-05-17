@@ -2,10 +2,8 @@ package com.hikvision.hikvisionmanage.common.systemsetting;
 
 import com.hikvision.hikvisionmanage.core.sdk.HCNetSDK;
 import com.hikvision.hikvisionmanage.devicemanage.bo.VidiconManage;
-import com.hikvision.hikvisionmanage.devicemanage.service.CentralCoreService;
 import com.hikvision.hikvisionmanage.utils.LoggerUtil;
 import com.hikvision.hikvisionmanage.vidicon.service.VidiconService;
-import com.hikvision.hikvisionmanage.vidicon.service.impl.VidiconServiceImpl;
 import com.hikvision.hikvisionmanage.vidicon.vidiconaction.VidiconAction;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
@@ -74,7 +72,7 @@ public class AfterTheServerStarted implements ApplicationRunner {
                 NativeLong loginDev = vidiconService.loginDevice(devIp, port, userName, password);
                 if (loginDev.intValue() == -1) {
 //                    int net_DVR_GetLastError = hCNetSDK.NET_DVR_GetLastError();
-                    LoggerUtil.error("设备登陆失败" );
+                    LoggerUtil.error("设备登陆失败");
                 } else {
                     if (lAlarmHandle.intValue() < 0) {// 尚未布防,需要布防
                         if (fMSFCallBack_V31 == null) {

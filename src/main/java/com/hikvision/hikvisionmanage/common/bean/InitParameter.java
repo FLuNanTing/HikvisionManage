@@ -1,16 +1,13 @@
 package com.hikvision.hikvisionmanage.common.bean;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.hikvision.hikvisionmanage.devicemanage.bo.LedScreenManage;
 import com.hikvision.hikvisionmanage.devicemanage.bo.VidiconManage;
 import com.hikvision.hikvisionmanage.utils.HttpClientUtil;
 import com.hikvision.hikvisionmanage.utils.LoggerUtil;
 import com.hikvision.hikvisionmanage.utils.MasterUtils;
 import com.hikvision.hikvisionmanage.utils.ReadConfigurationUtil;
-import com.hikvision.hikvisionmanage.vidicon.service.VidiconService;
 import com.hikvision.hikvisionmanage.vidicon.service.impl.VidiconServiceImpl;
-import com.sun.jna.NativeLong;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -29,15 +26,8 @@ import java.util.*;
 @Configuration
 public class InitParameter {
 
-
-    /**
-     * 报警布防句柄
-     */
-    NativeLong lAlarmHandle;
     @Autowired
     private ApplicationContext applicationContext;
-    @Autowired
-    private VidiconService vidiconService;
 
     /**
      * 将配置信息容器管理
