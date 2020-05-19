@@ -5,6 +5,7 @@ import com.hikvision.hikvisionmanage.devicemanage.bo.VidiconManage;
 import com.hikvision.hikvisionmanage.utils.LoggerUtil;
 import com.hikvision.hikvisionmanage.vidicon.service.VidiconService;
 import com.hikvision.hikvisionmanage.vidicon.vidiconaction.VidiconAction;
+import com.hikvision.hikvisionmanage.vidicon.vidiconutil.HikvisionErrorParseUtils;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
@@ -13,6 +14,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -61,6 +63,9 @@ public class AfterTheServerStarted implements ApplicationRunner {
         if (hCNetSDK == null) {
             hCNetSDK = (HCNetSDK) Native.loadLibrary(HCNetSDK.filePath(), HCNetSDK.class);
         }
+        hCNetSDK.NET_DVR_SetLogToFile(3, "D:/hikvisionSDKLog", false);
+        HCNetSDK.NET_DVR_SDKSTATE NET_DVR_SDKSTATE = null;
+        hCNetSDK.NET_DVR_GetSDKState(NET_DVR_SDKSTATE);
         if (vidiconManageSetBean != null || vidiconManageSetBean.size() > 0) {
             vidiconManageSetBean.forEach(vidiconManage -> {
                 lAlarmHandle = new NativeLong(-1);
@@ -71,8 +76,9 @@ public class AfterTheServerStarted implements ApplicationRunner {
                 String userName = "admin";
                 NativeLong loginDev = vidiconService.loginDevice(devIp, port, userName, password);
                 if (loginDev.intValue() == -1) {
-//                    int net_DVR_GetLastError = hCNetSDK.NET_DVR_GetLastError();
-                    LoggerUtil.error("设备登陆失败");
+                    int net_DVR_GetLastError = hCNetSDK.NET_DVR_GetLastError();
+                    Map<String, Object> map = HikvisionErrorParseUtils.getErrorMassage(net_DVR_GetLastError);
+                    LoggerUtil.error("设备登陆失败,原因:" + map.get("errorMessage"));
                 } else {
                     if (lAlarmHandle.intValue() < 0) {// 尚未布防,需要布防
                         if (fMSFCallBack_V31 == null) {
