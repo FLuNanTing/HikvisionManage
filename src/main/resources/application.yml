@@ -10,3 +10,6 @@ vidicon:
 
 ledscreen:
   url: /ledScreenManage/getDeviceInformation #获取led设备信息的接口
+#日志配置
+logging:
+  config: classpath:logback-boot.xml
