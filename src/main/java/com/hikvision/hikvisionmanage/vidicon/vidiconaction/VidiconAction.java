@@ -191,7 +191,7 @@ public class VidiconAction {
             }else{
                 httpHead = "http://";
             }
-            String url = httpHead + radioServiceManage.getRadioIp() + radioServiceManage.getRadioPort() + radioServiceManage.getRadioProject() + "/comDevManageC/controlGate";
+            String url = httpHead + radioServiceManage.getRadioIp() + ":" + radioServiceManage.getRadioPort() + radioServiceManage.getRadioProject() + "/comDevManageC/controlGate";
             HttpClientUtil.submitPostRequestMap(url.trim(), pushInfo);
             LoggerUtil.info(url + "响应耗时:" + (System.currentTimeMillis() - date) + "ms");
         });
