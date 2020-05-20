@@ -17,7 +17,7 @@ import java.util.Map;
  **/
 public class LocalServiceManage {
 
-    private static LocalServiceManage LOCAL_SERVICE_MANAGE = new LocalServiceManage();
+    private static LocalServiceManage LOCAL_SERVICE_MANAGE = null;
 
     private String localIp;
 
@@ -37,7 +37,7 @@ public class LocalServiceManage {
     }
 
     private LocalServiceManage(String sectionName){
-        if(LOCAL_SERVICE_MANAGE.isEmpty()){
+        if(LOCAL_SERVICE_MANAGE == null || LOCAL_SERVICE_MANAGE.isEmpty()){
             Map<String, Object> readIniConfigurationParameter = ReadConfigurationUtil.readIniConfigurationParameter();
             LOCAL_SERVICE_MANAGE.setLocalIp(readIniConfigurationParameter.get("hikvisionServiceAddress").toString());
             LOCAL_SERVICE_MANAGE.setLocalPort(Integer.valueOf(readIniConfigurationParameter.get("hikvisionServicePort").toString()));
@@ -113,9 +113,7 @@ public class LocalServiceManage {
 
     public Boolean isEmpty(){
         Boolean empty = false;
-        if(LOCAL_SERVICE_MANAGE == null){
-            empty = true;
-        }else if(StringUtils.isEmpty(localIp)){
+        if(StringUtils.isEmpty(localIp)){
             empty = true;
         }else if(StringUtils.isEmpty(localPort)){
             empty = true;
