@@ -65,6 +65,8 @@ public class VidiconServiceImpl implements VidiconService {
     public NativeLong loginDevice(String deviceIp, int devicePort, String userName, String password) {
         // 注册之前先注销已注册的用户,预览情况下不可注销
         NativeLong lUserId = new NativeLong(-1);
+        boolean netDvrInit = HCNETSDK.NET_DVR_Init();
+        LoggerUtil.info("初始化:" + netDvrInit);
         lUserId = HCNETSDK.NET_DVR_Login_V30(deviceIp, (short) devicePort, userName, password, M_STRDEVICEINFO);
         return lUserId;
     }

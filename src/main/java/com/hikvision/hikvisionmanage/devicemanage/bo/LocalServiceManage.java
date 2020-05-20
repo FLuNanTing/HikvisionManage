@@ -43,7 +43,8 @@ public class LocalServiceManage {
             LOCAL_SERVICE_MANAGE.setLocalPort(Integer.valueOf(readIniConfigurationParameter.get("hikvisionServicePort").toString()));
             LOCAL_SERVICE_MANAGE.setLocalProject(readIniConfigurationParameter.get("hikvisionServiceProject").toString());
             LOCAL_SERVICE_MANAGE.setLocalCode(Integer.valueOf(readIniConfigurationParameter.get("hikvisionServiceCode").toString()));
-            List<String> radioServerList = JSON.parseObject(readIniConfigurationParameter.get("radioServerList").toString(),List.class);
+            String radioServerListStr = readIniConfigurationParameter.get("radioServerList").toString();
+            List<String> radioServerList = JSON.parseObject(radioServerListStr,List.class);
             List<RadioServiceManage> radioServiceManageList = new ArrayList<>();
             radioServerList.forEach(radioServerStr -> {
                 RadioServiceManage radioServiceManage = new RadioServiceManage();
@@ -62,7 +63,7 @@ public class LocalServiceManage {
     }
 
     public static LocalServiceManage getInstance(){
-        return LocalServiceManageFactory.localServiceManage;
+        return LocalServiceManage.LocalServiceManageFactory.localServiceManage;
     }
 
     private static class LocalServiceManageFactory{

@@ -97,6 +97,9 @@ public class AfterTheServerStarted implements ApplicationRunner {
                         lAlarmHandle = hCNetSDK.NET_DVR_SetupAlarmChan_V41(loginDev, m_strAlarmInfo);
                         if (lAlarmHandle.intValue() == -1) {
                             LoggerUtil.error("=====设备{}布防失败=====", vidiconManage.getDeviceIp());
+                            int net_DVR_GetLastError = hCNetSDK.NET_DVR_GetLastError();
+                            Map<String, Object> map = HikvisionErrorParseUtils.getErrorMassage(net_DVR_GetLastError);
+                            LoggerUtil.error("失败原因:" + map.get("errorMessage"));
                         } else {
                             LoggerUtil.info("=====设备{}布防成功======", vidiconManage.getDeviceIp());
                         }

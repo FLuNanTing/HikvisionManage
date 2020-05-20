@@ -29,3 +29,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### config and log ###
+/log
+src/main/resources/hikvision_manage.ini

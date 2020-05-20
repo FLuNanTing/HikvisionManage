@@ -1,5 +1,6 @@
 package com.hikvision.hikvisionmanage.utils;
 
+import com.alibaba.fastjson.JSON;
 import com.hikvision.hikvisionmanage.common.systemsetting.DataValidateFailException;
 import org.ini4j.Profile.Section;
 import org.ini4j.Wini;
@@ -7,7 +8,10 @@ import org.springframework.util.ResourceUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @program: HikvisionManage
@@ -53,7 +57,7 @@ public class ReadConfigurationUtil {
             if(radioServerList==null||radioServerList.size()<1){
                 throw new DataValidateFailException("radio_address未配置");
             }
-            map.put("radioServerList",radioServerList);
+            map.put("radioServerList", JSON.toJSON(radioServerList));
         } catch (FileNotFoundException e) {
             LoggerUtil.error("配置文件未找到");
         } catch (IOException e) {
