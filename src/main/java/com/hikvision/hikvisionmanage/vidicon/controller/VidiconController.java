@@ -32,6 +32,7 @@ public class VidiconController {
     @SuppressWarnings("unchecked")
     @RequestMapping("barkControl")
     public String barkeControl(String bean) {
+        LoggerUtil.info("控制出入请求接收");
         Map<String, Object> linkInfo = JSON.parseObject(bean, Map.class);
         Integer command = Integer.valueOf(linkInfo.get("command").toString());
         String devIP = linkInfo.get("devIp").toString();
@@ -41,7 +42,7 @@ public class VidiconController {
         String plateNumber = linkInfo.get("plateNumber").toString();
         LoggerUtil.info("发送指令时间:" + linkInfo.get("date") + "ms");
         Map<String, Object> controlBrakeDev = vidiconService.controlBrakeDev(devIP, port, password, command,canRelease,plateNumber);
-        LoggerUtil.info("解析抬杆耗时:" + (System.currentTimeMillis() - Long.valueOf(linkInfo.get("date").toString()) + "ms"));
+        LoggerUtil.info("控制出入请求耗时:" + (System.currentTimeMillis() - Long.valueOf(linkInfo.get("date").toString()) + "ms"));
         return JSON.toJSONString(controlBrakeDev);
     }
 

@@ -17,7 +17,7 @@ import java.util.Map;
  **/
 public class LocalServiceManage {
 
-    private static final LocalServiceManage LOCAL_SERVICE_MANAGE = new LocalServiceManage();
+    private static LocalServiceManage LOCAL_SERVICE_MANAGE = new LocalServiceManage();
 
     private String localIp;
 

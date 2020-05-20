@@ -159,7 +159,7 @@ public class VidiconAction {
                 map.put("serialNumber", new String(pAlarmer.sSerialNumber).trim());
                 LoggerUtil.info("标志1-end:抓拍业务耗时:" + (System.currentTimeMillis() - date.getTime()) + "ms");
                 informationPush(map, LocalServiceManage.getInstance());
-                LoggerUtil.info("HttpClient完成请求:" + (System.currentTimeMillis() - date.getTime()) + "ms");
+                LoggerUtil.info("抓拍请求完成耗时:" + (System.currentTimeMillis() - date.getTime()) + "ms");
                 break;
             default :
                 // 报警类型
@@ -168,6 +168,9 @@ public class VidiconAction {
     }
 
     private void informationPush(Map<String ,Object> map ,LocalServiceManage entity){
+        if(entity == null ||entity.isEmpty()){
+            entity = LocalServiceManage.getInstance();
+        }
         Map<String, Object> localhostMap = new HashMap<>(10);
         Map<String, Object> pushInfo = new HashMap<>(3);
         localhostMap.put("localhostIp", entity.getLocalIp());

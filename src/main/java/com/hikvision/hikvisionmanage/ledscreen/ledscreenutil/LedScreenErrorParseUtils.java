@@ -1,7 +1,5 @@
 package com.hikvision.hikvisionmanage.ledscreen.ledscreenutil;
 
-import com.hikvision.hikvisionmanage.utils.LoggerUtil;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -70,7 +68,6 @@ public class LedScreenErrorParseUtils {
             map.put("code", errorCode);
             map.put("errorMessage", message);
         }
-        LoggerUtil.info(ipAddress + " : " + map.get("errorMessage").toString());
         return map;
     }
 }
