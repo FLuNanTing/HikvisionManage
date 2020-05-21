@@ -48,6 +48,10 @@ public class SocketUtil {
             // 释放资源
             ret = sdkExport.vtUninitialize();
             map = LedScreenErrorParseUtils.parseErrorCode(ret, ipAddress);
+        } catch (java.net.ConnectException e){
+            map.put("code", -1);
+            map.put("errorMessage", "设备ip:" + ipAddress + "无法连接");
+            map.put("data", null);
         } catch (IOException e) {
             map.put("code", -1);
             map.put("errorMessage", "向ip:" + ipAddress + "发送失败,失败原因:" + e.getMessage());

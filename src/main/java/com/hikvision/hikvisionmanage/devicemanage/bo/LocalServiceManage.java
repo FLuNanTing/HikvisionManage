@@ -38,6 +38,7 @@ public class LocalServiceManage {
 
     private LocalServiceManage(String sectionName){
         if(LOCAL_SERVICE_MANAGE == null || LOCAL_SERVICE_MANAGE.isEmpty()){
+            LOCAL_SERVICE_MANAGE = new LocalServiceManage();
             Map<String, Object> readIniConfigurationParameter = ReadConfigurationUtil.readIniConfigurationParameter();
             LOCAL_SERVICE_MANAGE.setLocalIp(readIniConfigurationParameter.get("hikvisionServiceAddress").toString());
             LOCAL_SERVICE_MANAGE.setLocalPort(Integer.valueOf(readIniConfigurationParameter.get("hikvisionServicePort").toString()));

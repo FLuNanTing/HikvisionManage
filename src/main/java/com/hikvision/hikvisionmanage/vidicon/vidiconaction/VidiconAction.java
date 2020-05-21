@@ -133,7 +133,7 @@ public class VidiconAction {
                     String srt3 = new String(strItsPlateResult.struPlateInfo.sLicense, "GBK").trim();
                     LoggerUtil.info("返回数据:" + srt3);
                     picColor = srt3.substring(0, 1);// 车牌颜色
-                    picNo = srt3.substring(1, srt3.length());
+                    picNo = srt3.substring(1);
                 } catch (UnsupportedEncodingException e1) {
                     e1.printStackTrace();
                 }
@@ -144,7 +144,7 @@ public class VidiconAction {
                 map.put("vehicleType", vehicleTypeStr);
                 // 报警设备IP地址
                 String devIP = new String(pAlarmer.sDeviceIP).trim();
-                LoggerUtil.info("车牌:" + picNo);
+                LoggerUtil.info("车牌:" + picNo.trim());
                 LoggerUtil.info("设备IP:" + devIP);
                 short devPort = pAlarmer.wLinkPort;
                 map.put("devIp", devIP);

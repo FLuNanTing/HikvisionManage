@@ -4,7 +4,7 @@
     <!-- ConsoleAppender：把日志输出到控制台 -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>[HS] %d{yyyy-MM-dd HH:mm:ss,SSS} [%highlight(%p - %t)] - %boldGreen(%m)  -%gray(%caller{1..2})</pattern>
+            <pattern>[HS] %d{yyyy-MM-dd HH:mm:ss.SSS} [%highlight(%p - %t)] - %boldGreen(%m)  -%gray(%caller{1..2})</pattern>
             <!-- 控制台也要使用UTF-8，不要使用GBK，否则会中文乱码 -->
             <charset>UTF-8</charset>
         </encoder>

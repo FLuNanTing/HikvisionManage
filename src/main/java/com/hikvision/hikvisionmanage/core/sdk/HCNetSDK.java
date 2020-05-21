@@ -3483,7 +3483,7 @@ public interface HCNetSDK extends StdCallLibrary {
 		public byte byCountry;
 		public byte[] byRes = new byte[33];
 		public NET_VCA_RECT struPlateRect;
-		public byte[] sLicense = new byte[MAX_LICENSE_LEN];
+		public byte[] sLicense = new byte[10];
 		public byte[] byBelieve = new byte[MAX_LICENSE_LEN];
 	}
 
