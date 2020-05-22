@@ -91,6 +91,7 @@ public class InitParameter {
                             if (StringUtils.isEmpty(deviceId)) {
                                 Map<String, Object> deviceInformationMap = (new VidiconServiceImpl()).getDeviceInformation(vidiconManage.getDeviceIp(), vidiconManage.getDevicePort().toString(), vidiconManage.getPassword(), null);
                                 if (deviceInformationMap != null && deviceInformationMap.get("errorCode").equals(0)) {
+                                    LoggerUtil.info(deviceInformationMap.toString());
                                     Map deviceInfo = JSON.parseObject(deviceInformationMap.get("data").toString(), Map.class);
                                     Map<String, Object> deviceInformation = deviceInfo;
                                     vidiconManage.setVidiconId(deviceInformation.get("deviceId").toString());

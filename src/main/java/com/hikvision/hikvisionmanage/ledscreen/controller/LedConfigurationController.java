@@ -62,10 +62,8 @@ public class LedConfigurationController {
         // 文字
         map = ledConfigurationService.textControl(deviceIp,devicePort,picNo, release );
         Long timeConsuming = System.currentTimeMillis() - dateTime;
-        LoggerUtil.info("生成文字耗时:" + timeConsuming + "ms");
         // 语音
         ledConfigurationService.soundControl(picNo, release, deviceIp, devicePort);
-        LoggerUtil.info("语音生成耗时:" + (System.currentTimeMillis() - dateTime - timeConsuming) + "ms");
         LoggerUtil.info("全程消耗:" +(System.currentTimeMillis() - (ledInfo.get("date")==null?0L:Long.valueOf(ledInfo.get("date").toString()))) + "ms");
         return map;
     }

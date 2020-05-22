@@ -1,5 +1,6 @@
 package com.hikvision.hikvisionmanage.vidicon.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.hikvision.hikvisionmanage.core.sdk.HCNetSDK;
 import com.hikvision.hikvisionmanage.devicemanage.bo.LedScreenManage;
 import com.hikvision.hikvisionmanage.devicemanage.bo.VidiconManage;
@@ -190,7 +191,7 @@ public class VidiconServiceImpl implements VidiconService {
             devList.put("devType", M_STRIPPARACFG.byDVRType);
             devMap.put("errorCode", 0);
             devMap.put("errorMessage", "success");
-            devMap.put("data", devList);
+            devMap.put("data", JSON.toJSON(devList));
         } else if (!StringUtils.isEmpty(deviceId)) {
 
         } else {

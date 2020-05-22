@@ -2,6 +2,10 @@ server:
   port: 11080
   servlet:
     context-path: /HikvisionManage
+  tomcat:
+    uri-encoding: UTF-8
+
+
 
 communications:
   mode: 0 #读取摄像头信息方式0接口请求
