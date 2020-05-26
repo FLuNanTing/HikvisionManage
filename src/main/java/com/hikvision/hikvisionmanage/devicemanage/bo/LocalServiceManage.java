@@ -64,13 +64,9 @@ public class LocalServiceManage {
     }
 
     public static LocalServiceManage getInstance(){
-        return new LocalServiceManage("hikvision_manage.ini");
+        new LocalServiceManage("hikvision_manage.ini");
+        return LOCAL_SERVICE_MANAGE;
     }
-
-    private static class LocalServiceManageFactory{
-        private static LocalServiceManage localServiceManage = new LocalServiceManage("hikvision_manage.ini");
-    }
-
 
     public String getLocalIp() {
         return localIp;
