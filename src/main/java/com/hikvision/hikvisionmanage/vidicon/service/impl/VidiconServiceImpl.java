@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.hikvision.hikvisionmanage.core.sdk.HCNetSDK;
 import com.hikvision.hikvisionmanage.devicemanage.bo.LedScreenManage;
 import com.hikvision.hikvisionmanage.devicemanage.bo.VidiconManage;
-import com.hikvision.hikvisionmanage.ledscreen.service.impl.LedConfigurationServiceImpl;
+import com.hikvision.hikvisionmanage.ledscreen.service.LedConfigurationService;
 import com.hikvision.hikvisionmanage.utils.LoggerUtil;
 import com.hikvision.hikvisionmanage.utils.MasterUtils;
 import com.hikvision.hikvisionmanage.vidicon.service.VidiconService;
@@ -49,7 +49,7 @@ public class VidiconServiceImpl implements VidiconService {
     private Set<LedScreenManage> ledScreenManageSetBean;
 
     @Autowired
-    private LedConfigurationServiceImpl ledConfigurationService;
+    private LedConfigurationService ledConfigurationService;
 
     /**
      * {登录设备}
@@ -120,6 +120,7 @@ public class VidiconServiceImpl implements VidiconService {
             }
             //控闸伴随着LED屏幕控制
             if (canRelease != null && MasterUtils.checkIsNumber(canRelease)) {
+                LoggerUtil.info("抓拍机有挂载LED");
                 Integer release = Integer.valueOf(canRelease.toString());
                 Optional<VidiconManage> vidiconManageOptional = vidiconManageSetBean.stream().filter(item -> item.getDeviceIp().equals(deviceIp)).findFirst();
                 if (vidiconManageOptional.isPresent()) {
@@ -128,10 +129,17 @@ public class VidiconServiceImpl implements VidiconService {
                     Optional<LedScreenManage> onlyLedScreenManage = ledScreenManageSetBean.stream().filter(ledScreenManage -> ledScreenManage.getVidiconManage().getDeviceIp().equals(deviceIp)).findFirst();
                     if (onlyLedScreenManage.isPresent()) {
                         LedScreenManage entity = onlyLedScreenManage.get();
+                        LoggerUtil.info("LED-IP:" + entity.getDeviceIp());
                         //生成LED文字
-                        ledConfigurationService.textControl(entity.getDeviceIp(), entity.getDevicePort(), plateNumber, release);
+                        Map<String , Object> textControl = ledConfigurationService.textControl(entity.getDeviceIp(), entity.getDevicePort(), plateNumber, release);
                         //生成语音
-                        ledConfigurationService.soundControl(entity.getDeviceIp(), entity.getDevicePort(), plateNumber, release);
+                        Map<String , Object> soundControl = ledConfigurationService.soundControl(entity.getDeviceIp(), entity.getDevicePort(), plateNumber, release);
+                        LoggerUtil.info("textControl:" + textControl.toString());
+                        LoggerUtil.info("soundControl:" + soundControl.toString());
+                        if(textControl.get("code").equals(-1)||soundControl.get("code").equals(-1)){
+                            LoggerUtil.error("LED信息传递失败:" + (textControl.get("code").equals(-1)?textControl.get("errorMessage").toString() : soundControl.get("errorMessage").toString()));
+                        }
+                        LoggerUtil.info("文字语音生成成功");
                     }
                 }
             }

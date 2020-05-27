@@ -9,8 +9,13 @@ import com.hikvision.hikvisionmanage.utils.LoggerUtil;
 import com.hikvision.hikvisionmanage.utils.SocketUtil;
 import com.sun.jna.NativeLong;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.Socket;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -89,7 +94,56 @@ public class LedConfigurationServiceImpl implements LedConfigurationService {
      */
     @Override
     public Map<String, Object> soundControl(String ipAddress, Integer port, String picNo, Integer release) {
-        return null;
+        Map<String, Object> map = new HashMap<>();
+        byte[] sountBytes = null;
+        String message = LedScreenUtil.releaseToMessage(release);
+        if (StringUtils.isEmpty(message)) {
+            message = "一路顺风";
+        }
+        try {
+            LoggerUtil.info("message:" + message);
+            sountBytes = ("车牌号:" + picNo + "," + message).getBytes("GBK");
+        } catch (Exception e) {
+            LoggerUtil.error("语音生成错误");
+            e.printStackTrace();
+        }
+        byte program = 1, area = 1;
+        int ret = 0;
+        // 显示屏参数初始化
+        ret = sdkExport.vtInitialize(nWidth, nHeight, (byte) CSDKExport.VT_DIPLAY_COLOR.VT_SIGNLE_COLOR, (byte) 0);
+        // 添加节目
+        ret = sdkExport.vtAddProgram(program);
+        // 第一行
+        ret = sdkExport.vtAddSoundItem(program, area, (byte) 0, (byte) 0, (byte) 5, sountBytes, sountBytes.length);
+        LoggerUtil.info("语音生成:" + (ret == 0 ? "成功" : "失败"));
+        try {
+            Socket socket = new Socket(ipAddress, port);
+            BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
+            BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
+            byte[] pProgram = new byte[1024];
+            long nSize = 0;
+            byte[] buffer = new byte[1024];
+            do {
+                ret = sdkExport.vtGetProgramPack((byte) 0x01, (byte) 1, pProgram, nSize);
+                bos.write(pProgram, 0, pProgram.length);
+                bos.flush();
+                bis.read(buffer);
+
+            } while (ret > 0);
+            bos.close();
+            bis.close();
+            socket.close();
+            map.put("code", 0);
+            map.put("errorMessage", "向设备发送语音成功");
+        } catch (Exception e) {
+            map.put("code", -1);
+            map.put("errorMessage", "向设备发送语音失败");
+            e.printStackTrace();
+        }
+        map.put("data", null);
+        // 释放资源
+        ret = sdkExport.vtUninitialize();
+        return map;
     }
 
     /**
