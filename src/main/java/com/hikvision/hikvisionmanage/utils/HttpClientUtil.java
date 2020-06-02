@@ -60,6 +60,7 @@ public class HttpClientUtil {
 		} catch (SocketTimeoutException scoketException){
 			LoggerUtil.error("服务器连接超时");
 		} catch (Exception e) {
+			LoggerUtil.error("服务器断开");
 			e.printStackTrace();
 		} finally {
 			httpPost.releaseConnection();

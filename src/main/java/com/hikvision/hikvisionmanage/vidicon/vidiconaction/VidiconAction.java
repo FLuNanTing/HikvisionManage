@@ -135,9 +135,9 @@ public class VidiconAction {
                     picColor = srt3.substring(0, 1);// 车牌颜色
                     picNo = srt3.substring(1);
                 } catch (UnsupportedEncodingException e1) {
+                    LoggerUtil.error("抓拍数据解析异常!");
                     e1.printStackTrace();
                 }
-                LoggerUtil.info("截取数据End");
                 String colorStr = VehicleTypeAnalysis.analysisForVehicleColor(strItsPlateResult.struVehicleInfo.byColor);// 车身颜色
                 map.put("color", colorStr);
                 String vehicleTypeStr = VehicleTypeAnalysis.analysisForVehicleType(strItsPlateResult.byVehicleType);// 车辆类型
