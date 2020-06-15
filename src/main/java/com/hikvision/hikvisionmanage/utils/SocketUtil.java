@@ -56,8 +56,8 @@ public class SocketUtil {
             map.put("code", -1);
             map.put("errorMessage", "向ip:" + ipAddress + "发送失败,失败原因:" + e.getMessage());
             map.put("data", null);
-            LoggerUtil.error("通信失败,失败原因{}",map.get("message"));
-            e.printStackTrace();
+            LoggerUtil.error("通信失败,失败原因{}",map.get("errorMessage"));
+            LoggerUtil.error(e.getMessage());
         }finally {
             try {
                 if (socket!= null){

@@ -73,6 +73,7 @@ public class InitParameter {
                     LoggerUtil.error("未找到设备");
                 } else {
                     //解析返回数据
+                    LoggerUtil.info("返回数据：" + requestMap);
                     Map<String, Object> requestDataMap = JSON.parseObject(requestMap, Map.class);
                     List<Map> requestDataList = JSON.parseArray(requestDataMap.get("data").toString(), Map.class);
                     if (requestDataList != null && requestDataList.size() > 0) {
@@ -101,6 +102,9 @@ public class InitParameter {
                             }
                             vidiconManageSet.add(vidiconManage);
                         });
+                    }else{
+                        LoggerUtil.error("未在终端服务找到相关设备信息");
+                        System.exit(0);
                     }
                 }
             });
